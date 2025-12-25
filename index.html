@@ -126,12 +126,12 @@
         
         .bus-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* 减小最小宽度 */
+            gap: 10px; /* 减小间距 */
         }
         
         .detail-item {
-            margin-bottom: 10px;
+            margin-bottom: 8px; /* 减小底部边距 */
         }
         
         .detail-label {
@@ -282,17 +282,19 @@
                 
                 let html = '';
                 busLines.forEach(bus => {
+                    // 格式化时间，只保留时分
+                    const formattedArrivalTime = formatTime(bus.arrivalTime);
+                    
                     html += `
                     <div class="bus-info">
                         <div class="bus-header">
-                            <span class="bus-icon">🚌</span>
                             <span class="bus-route">${bus.route.replace(/[^\d\u8DEF]/g, '')}</span>
-                            <span class="destination-label"> 开往：</span><span class="destination">${bus.destination}</span>
+                            <span class="destination-label">  开往  </span><span class="destination">${bus.destination}</span>
                         </div>
                         <div class="bus-details">
                             <div class="detail-item">
                                 <div class="detail-label">预计到站</div>
-                                <div class="detail-value">${bus.arrivalTime}</div>
+                                <div class="detail-value">${formattedArrivalTime}</div>
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">预计时间</div>
@@ -360,6 +362,27 @@
                 }
                 
                 return busLines;
+            }
+            
+            // 添加时间格式化函数
+            function formatTime(timeString) {
+                // 检查是否为"未知"或其他非标准时间格式
+                if (timeString === '未知' || !timeString.includes(' ')) {
+                    return timeString;
+                }
+                
+                // 分割日期和时间部分，只保留时间部分
+                const timePart = timeString.split(' ')[1];
+                
+                // 如果时间部分包含秒，去除秒，只保留时分
+                if (timePart && timePart.includes(':')) {
+                    const timeComponents = timePart.split(':');
+                    if (timeComponents.length >= 2) {
+                        return timeComponents[0] + ':' + timeComponents[1];
+                    }
+                }
+                
+                return timePart || timeString;
             }
             
             function showError(message) {
