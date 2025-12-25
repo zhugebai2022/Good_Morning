@@ -127,7 +127,7 @@
         .bus-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* 减小最小宽度 */
-            gap: 10px; /* 减小间距 */
+            gap: 2px; /* 减小间距 */
         }
         
         .detail-item {
@@ -289,7 +289,7 @@
                     <div class="bus-info">
                         <div class="bus-header">
                             <span class="bus-route">${bus.route.replace(/[^\d\u8DEF]/g, '')}</span>
-                            <span class="destination-label">  开往  </span><span class="destination">${bus.destination}</span>
+                            <span class="destination-label">  往  </span><span class="destination">${bus.destination}</span>
                         </div>
                         <div class="bus-details">
                             <div class="detail-item">
