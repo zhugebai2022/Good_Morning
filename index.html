@@ -126,12 +126,14 @@
         
         .bus-details {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0px; /* 减小间距 */
+            grid-template-columns: repeat(3, minmax(0, 1fr)); /* 防止内在最小宽度撑开列 */
+            gap: 12px; /* 根据需要调整列间距 */
+            align-items: start;
         }
-        
+
         .detail-item {
-            margin-bottom: 8px; /* 减小底部边距 */
+            width: auto;
+            min-width: 0; /* 关键：允许在 grid 中正确收缩，兼容 Safari/Chrome */
         }
         
         .detail-label {
