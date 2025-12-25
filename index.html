@@ -284,13 +284,11 @@
                     html += `
                     <div class="bus-info">
                         <div class="bus-header">
-                            <span class="bus-route">${bus.route}</span>
+                            <span class="bus-icon">🚌</span>
+                            <span class="bus-route">${bus.route.replace(/[^\d\u8DEF]/g, '')}</span>
+                            <span class="destination-label">开往：</span><span class="destination">${bus.destination}</span>
                         </div>
                         <div class="bus-details">
-                            <div class="detail-item">
-                                <div class="detail-label">开往</div>
-                                <div class="detail-value destination">${bus.destination}</div>
-                            </div>
                             <div class="detail-item">
                                 <div class="detail-label">预计到站</div>
                                 <div class="detail-value">${bus.arrivalTime}</div>
