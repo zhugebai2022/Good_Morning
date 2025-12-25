@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宝贝巴士</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fdf0f0 0%, #fadadd 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #f8a5c2;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .form-container {
+            padding: 30px;
+            background: #fdf0f0;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #fbc5c5;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #f8a5c2;
+            box-shadow: 0 0 0 3px rgba(248, 165, 194, 0.2);
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #f8a5c2;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #f588ac;
+        }
+        
+        .results-container {
+            padding: 30px;
+        }
+        
+        .bus-info {
+            background: white;
+            border: 1px solid #fbc5c5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .bus-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .bus-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .bus-route {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f8a5c2;
+        }
+        
+        .bus-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .detail-item {
+            margin-bottom: 10px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            color: #333;
+            margin-top: 3px;
+        }
+        
+        .destination {
+            font-weight: bold;
+            color: #f8a5c2;
+        }
+        
+        .time-estimate {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+        
+        .error {
+            background: #ffeaea;
+            color: #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container, .results-container {
+                padding: 20px;
+            }
+            
+            .bus-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚌宝贝巴士🚌</h1>
+        </header>
+        
+        <div class="form-container">
+            <div class="input-group">
+                <label for="station">站点名称</label>
+                <select id="station" placeholder="请选择站点名称">
+                    <option value="学津路">学津路</option>
+                    <option value="杉湖西路">杉湖西路</option>
+                    <option value="东杨坊">东杨坊</option>
+                    <option value="玄武大道·长途东站">玄武大道·长途东站</option>
+                </select>
+            </div>
+            
+            <button id="search-btn">查询</button>
+        </div>
+        
+        <div class="results-container" id="results-container">
+            <div class="loading" id="loading" style="display: none;">
+                正在查询实时公交信息...
+            </div>
+            <div class="error" id="error" style="display: none;"></div>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBtn = document.getElementById('search-btn');
+            const stationInput = document.getElementById('station');
+            const resultsContainer = document.getElementById('results');
+            const loadingElement = document.getElementById('loading');
+            const errorElement = document.getElementById('error');
+            
+            // 页面加载时默认查询学津路的公交信息
+            searchBusInfo();
+            
+            searchBtn.addEventListener('click', searchBusInfo);
+            
+            function searchBusInfo() {
+                const city = "南京";  // 默认使用南京
+                const station = stationInput.value.trim();
+                
+                if (!city || !station) {
+                    showError('请填写城市和站点名称');
+                    return;
+                }
+                
+                // 显示加载状态
+                loadingElement.style.display = 'block';
+                errorElement.style.display = 'none';
+                resultsContainer.innerHTML = '';
+                
+                // 构建API URL
+                let apiUrl = `https://api.lolimi.cn/API/che/api.php?type=text&city=${encodeURIComponent(city)}&line=${encodeURIComponent(station)}`;
+                
+                // 使用fetch API获取公交信息
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('网络响应不正常');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        loadingElement.style.display = 'none';
+                        parseAndDisplayBusInfo(data);
+                    })
+                    .catch(error => {
+                        loadingElement.style.display = 'none';
+                        showError('获取公交信息失败: ' + error.message);
+                    });
+            }
+            
+            function parseAndDisplayBusInfo(responseText) {
+                // 解析API返回的文本数据
+                const busLines = parseBusResponse(responseText);
+                
+                if (busLines.length === 0) {
+                    resultsContainer.innerHTML = '<div class="no-data">暂无公交信息</div>';
+                    return;
+                }
+                
+                let html = '';
+                busLines.forEach(bus => {
+                    html += `
+                    <div class="bus-info">
+                        <div class="bus-header">
+                            <span class="bus-icon">🚌</span>
+                            <span class="bus-route">${bus.route}</span>
+                        </div>
+                        <div class="bus-details">
+                            <div class="detail-item">
+                                <div class="detail-label">开往</div>
+                                <div class="detail-value destination">${bus.destination}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">预计到站</div>
+                                <div class="detail-value">${bus.arrivalTime}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">预计时间</div>
+                                <div class="detail-value time-estimate">${bus.estimatedTime}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">剩余站数</div>
+                                <div class="detail-value">${bus.remainingStops}</div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = html;
+            }
+            
+            function parseBusResponse(responseText) {
+                const lines = responseText.split('\n');
+                const busLines = [];
+                let currentBus = null;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    // 检查是否是公交路线行 (如 "🚌146路")
+                    if (line.startsWith('🚌')) {
+                        // 如果已有当前公交信息，先保存
+                        if (currentBus) {
+                            busLines.push(currentBus);
+                        }
+                        
+                        // 创建新的公交信息对象
+                        currentBus = {
+                            route: line.substring(1), // 去掉巴士图标
+                            price: '未知',
+                            destination: '未知',
+                            license: '未知',
+                            arrivalTime: '未知',
+                            estimatedTime: '未知',
+                            remainingStops: '未知'
+                        };
+                    } 
+                    // 如果当前正在解析一个公交信息
+                    else if (currentBus) {
+                        if (line.startsWith('票价：')) {
+                            currentBus.price = line.substring(3);
+                        } else if (line.startsWith('开往：')) {
+                            currentBus.destination = line.substring(3);
+                        } else if (line.startsWith('车牌：')) {
+                            currentBus.license = line.substring(3);
+                        } else if (line.startsWith('预计到站：')) {
+                            currentBus.arrivalTime = line.substring(5);
+                        } else if (line.startsWith('预计时间：')) {
+                            currentBus.estimatedTime = line.substring(5);
+                        } else if (line.startsWith('剩余站数：')) {
+                            currentBus.remainingStops = line.substring(5);
+                        }
+                    }
+                }
+                
+                // 添加最后一个公交信息
+                if (currentBus) {
+                    busLines.push(currentBus);
+                }
+                
+                return busLines;
+            }
+            
+            function showError(message) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                loadingElement.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
