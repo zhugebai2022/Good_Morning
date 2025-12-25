@@ -149,6 +149,7 @@
         .destination {
             font-weight: bold;
             color: #f8a5c2;
+            font-size: 16px;
         }
         
         .time-estimate {
@@ -201,16 +202,16 @@
         
         <div class="form-container">
             <div class="input-group">
-                <label for="station">站点名称</label>
-                <select id="station" placeholder="请选择站点名称">
-                    <option value="学津路">学津路</option>
-                    <option value="杉湖西路">杉湖西路</option>
-                    <option value="东杨坊">东杨坊</option>
-                    <option value="玄武大道·长途东站">玄武大道·长途东站</option>
-                </select>
+                <div class="input-with-button" style="display: flex; gap: 10px;">
+                    <select id="station" placeholder="请选择站点名称" style="flex: 2;">
+                        <option value="学津路">学津路</option>
+                        <option value="杉湖西路">杉湖西路</option>
+                        <option value="东杨坊">东杨坊</option>
+                        <option value="玄武大道·长途东站">玄武大道·长途东站</option>
+                    </select>
+                    <button id="search-btn" style="padding: 14px; align-self: flex-end; width: auto; flex: 1;">查询</button>
+                </div>
             </div>
-            
-            <button id="search-btn">查询</button>
         </div>
         
         <div class="results-container" id="results-container">
